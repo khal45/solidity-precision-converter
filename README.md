@@ -31,7 +31,7 @@ In Solidity, values are often scaled up for precision (like `1 ETH = 1e18 wei`).
 
 ```bash
 git clone https://github.com/yourusername/solidity-precision-converter.git
-cd precision-converter
+cd solidity-precision-converter
 yarn
 yarn dev
 ```
