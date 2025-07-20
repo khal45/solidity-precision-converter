@@ -1,19 +1,38 @@
 import React, { useState } from "react";
 import "./styles.css";
 
-const PRECISION = 1e18;
+const DEFAULT_PRECISION = 1e18;
 
 export default function PrecisionConverter() {
   const [rawValue, setRawValue] = useState("");
   const [humanValue, setHumanValue] = useState("");
   const [mode, setMode] = useState("toHuman");
+  const [precision, setPrecision] = useState(DEFAULT_PRECISION);
 
-  const handleRawChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
+  const handlePrecisionChange = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const precisionInput = formData.get("precision");
+    let parsedPrecision;
+    if (typeof precisionInput === "string") {
+      parsedPrecision = parseFloat(precisionInput);
+      if (!isNaN(parsedPrecision) && parsedPrecision > 0) {
+        setPrecision(parsedPrecision);
+      } else {
+        alert("Please enter a valid number greater than 0 for precision.");
+      }
+    } else {
+      console.error("Precision value must be a string");
+    }
+    (event.currentTarget as HTMLFormElement).reset();
+  };
+
+  const handleRawChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const val = event.target.value;
     setRawValue(val);
     const parsed = parseFloat(val);
     if (!isNaN(parsed)) {
-      setHumanValue((parsed / PRECISION).toString());
+      setHumanValue((parsed / precision).toString());
     } else {
       setHumanValue("");
     }
@@ -24,7 +43,7 @@ export default function PrecisionConverter() {
     setHumanValue(val);
     const parsed = parseFloat(val);
     if (!isNaN(parsed)) {
-      setRawValue((parsed * PRECISION).toString());
+      setRawValue((parsed * precision).toString());
     } else {
       setRawValue("");
     }
@@ -33,6 +52,16 @@ export default function PrecisionConverter() {
   return (
     <div className="converter-container">
       <div className="tab-buttons">
+        <p className="current-precision">Current Precision: {precision}</p>
+        <form onSubmit={handlePrecisionChange}>
+          <input
+            className="precision-input"
+            name="precision"
+            type="text"
+            placeholder="Enter precision like 1e18"
+          />
+          <button type="submit">Set Precision</button>
+        </form>
         <button
           className={mode === "toHuman" ? "active" : ""}
           onClick={() => setMode("toHuman")}
